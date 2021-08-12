@@ -1,13 +1,14 @@
-const itemRender = function () {
+const render = function (todoList, activeFilter) {
+  this.list = document.querySelector("ul");
   this.list.innerText = "";
 
-  const todoListToRender = this.todoList.filter((todoItem) => {
+  const todoListToRender = todoList.filter((todoItem) => {
     const filterMap = {
       active: !todoItem.done ? todoItem : null,
       completed: todoItem.done ? todoItem : null,
       all: todoItem,
     };
-    return filterMap[this.activeFilter];
+    return filterMap[activeFilter];
   });
 
   todoListToRender.forEach((item) => {
@@ -71,4 +72,6 @@ const itemRender = function () {
   });
 };
 
-export default itemRender;
+  export default render
+
+ 

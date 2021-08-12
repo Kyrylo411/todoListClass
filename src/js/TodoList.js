@@ -1,20 +1,19 @@
-import itemRender from "./itemRender.js";
+import render from "./render.js";
 
 class TodoList {
-  constructor() {
+  constructor(todoList, setTodoList, activeFilter) {
     this.todoInput = document.querySelector("input");
     this.inputArrow = document.querySelector(".arrow");
-    this.list = document.querySelector("ul");
 
-    this.todoList = [];
+    this.render = render.bind(this);
 
-    // this.itemRender = itemRender.bind(this);
+    this.setTodoList = (newTodoList) => {
+      todoList = newTodoList;
 
-    this.setTodoList = function (newTodoList) {
-      this.todoList = newTodoList;
-      // this.itemRender();
+      this.render(todoList, activeFilter);
       this.changeInputArrowColor();
       this.updateInputArrow();
+      setTodoList(todoList)
     };
 
     this.todoInput.addEventListener("keydown", (keyPressed) => {
@@ -31,22 +30,24 @@ class TodoList {
 
     this.addTodoItem = function (itemValue) {
       this.setTodoList([
-        ...this.todoList,
+        ...todoList,
         {
           value: itemValue,
           id: Date.now(),
           done: false,
         },
       ]);
+
+      console.log(todoList);
     };
 
     this.deleteTodoItem = function (todoId) {
-      this.setTodoList(this.todoList.filter((elem) => elem.id !== +todoId));
+      this.setTodoList(todoList.filter((elem) => elem.id !== +todoId));
     };
 
     this.changeItemStatus = function (id, isChecked) {
       this.setTodoList(
-        this.todoList.map((item) =>
+        todoList.map((item) =>
           id === item.id ? { ...item, done: isChecked } : item
         )
       );
@@ -58,12 +59,12 @@ class TodoList {
     };
 
     this.inputArrow.addEventListener("click", () => {
-      this.changeAllItemsStatus(this.checkAllItems(this.todoList));
+      this.changeAllItemsStatus(this.checkAllItems(todoList));
     });
 
     this.changeAllItemsStatus = function (isCheckedAllItems) {
       this.setTodoList(
-        this.todoList.map((item) =>
+        todoList.map((item) =>
           isCheckedAllItems ? { ...item, done: false } : { ...item, done: true }
         )
       );
@@ -71,22 +72,22 @@ class TodoList {
 
     this.changeInputArrowColor = function () {
       this.inputArrow.classList[
-        this.checkAllItems(this.todoList) ? "add" : "remove"
+        this.checkAllItems(todoList) ? "add" : "remove"
       ]("arrowDark");
     };
 
     this.updateInputArrow = function () {
-      this.inputArrow.classList[this.todoList.length ? "add" : "remove"](
+      this.inputArrow.classList[todoList.length ? "add" : "remove"](
         "arrowVisible"
       );
     };
 
-    this.makeTodoEditHandler = (input, label, delBtn) => {
+    this.makeTodoEditHandler = function (input, label, delBtn) {
       const changeItemValue = () => {
         const itemValue = input.value.trim();
         const parentId = +input.parentElement.parentElement.dataset.todoId;
         this.setTodoList(
-          this.todoList.map((item) =>
+          todoList.map((item) =>
             parentId === item.id ? { ...item, value: itemValue } : item
           )
         );

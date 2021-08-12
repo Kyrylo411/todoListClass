@@ -1,3 +1,3 @@
-import TodoInfo from "./TodoInfo.js";
+import State from "./State.js";
 
-const todoList = new TodoInfo()
+const todolist = new State()

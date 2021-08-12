@@ -1,9 +1,7 @@
-import TodoList from "./TodoList.js";
-import itemRender from "./itemRender.js";
+import render from "./render.js";
 
-class TodoInfo extends TodoList {
-  constructor() {
-    super();
+class TodoInfo {
+  constructor(todoList, activeFilter, setTodoList, setActiveFilter) {
     this.todoInfo = document.querySelector(".todoInfo");
     this.underLines = document.querySelector(".underLines");
     this.itemNumber = document.querySelector(".itemNumber");
@@ -12,10 +10,12 @@ class TodoInfo extends TodoList {
     this.activeBtn = document.querySelector(".activeBtn");
     this.compleatedBtn = document.querySelector(".compleatedBtn");
 
-    this.allBtn.classList.add("buttonActive");
-    this.activeFilter = "all";
+    // this.list = document.querySelector("ul");
 
-    this.itemRender = itemRender.bind(this);
+    console.log(todoList)
+    
+    this.allBtn.classList.add("buttonActive");
+    this.render = render.bind(this);
 
     this.infoButtons = [
       {
@@ -33,31 +33,35 @@ class TodoInfo extends TodoList {
     ];
 
     this.setTodoList = function (newTodoList) {
-      this.todoList = newTodoList;
-      this.itemRender();
-      this.changeInputArrowColor();
-      this.updateInputArrow();
+      todoList = newTodoList;
+      this.render(todoList, activeFilter);
       this.updateClearCompletedBtn();
       this.updateTodoInfo();
+
+      setTodoList(todoList)
     };
 
-    this.setActiveFilter = (newFilter) => {
-      this.activeFilter = newFilter;
+    this.setActiveFilter = function (newFilter) {
+      activeFilter = newFilter;
 
       this.selectActiveInfoButton();
-      this.itemRender();
+      this.render(todoList, activeFilter);
+
+      setActiveFilter(activeFilter)
     };
 
-    this.selectActiveInfoButton = () => {
+    this.selectActiveInfoButton = function () {
       this.infoButtons.forEach((btn) =>
         btn.buttonName.classList[
-          btn.id === this.activeFilter ? "add" : "remove"
+          btn.id === activeFilter ? "add" : "remove"
         ]("buttonActive")
       );
     };
 
     this.changeActiveFilter = ({ target: { textContent } }) => {
       this.setActiveFilter(textContent.toLowerCase());
+      console.log(activeFilter);
+      console.log(todoList);
     };
 
     this.allBtn.addEventListener("click", (e) => {
@@ -73,13 +77,13 @@ class TodoInfo extends TodoList {
     });
 
     this.clearCompleted = () => {
-      this.setTodoList(this.todoList.filter((item) => item.done === false));
+      this.setTodoList(todoList.filter((item) => item.done === false));
     };
 
     this.clearBtn.addEventListener("click", this.clearCompleted);
 
     this.updateClearCompletedBtn = () => {
-      const isTodoItemChecked = this.todoList.some(
+      const isTodoItemChecked = todoList.some(
         (item) => item.done === true
       );
 
@@ -92,14 +96,14 @@ class TodoInfo extends TodoList {
     this.clearBtn.addEventListener("click", this.clearCompleted);
 
     this.updateTodoInfo = () => {
-      const notCheckeditems = this.todoList.filter(
+      const notCheckeditems = todoList.filter(
         (item) => item.done === false
       );
 
       this.todoInfo.classList.add("todoInfoHide");
       this.underLines.classList.add("underLinesHide");
 
-      if (this.todoList.length) {
+      if (todoList.length) {
         this.itemNumber.textContent = `${notCheckeditems.length} item left`;
         this.todoInfo.classList.remove("todoInfoHide");
         this.underLines.classList.remove("underLinesHide");
@@ -108,6 +112,8 @@ class TodoInfo extends TodoList {
         }
       }
     };
+    console.log(todoList)
+
   }
 }
 export default TodoInfo;
