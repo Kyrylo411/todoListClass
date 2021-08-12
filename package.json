@@ -1,0 +1,22 @@
+{
+  "name": "todoclasses",
+  "version": "1.0.0",
+  "description": "todoList",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kyrylo",
+  "license": "ISC",
+  "devDependencies": {
+    "css-loader": "^6.2.0",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "mini-css-extract-plugin": "^2.2.0",
+    "node-sass": "^6.0.1",
+    "sass-loader": "^12.1.0",
+    "style-loader": "^3.2.1",
+    "webpack": "^5.49.0"
+  }
+}

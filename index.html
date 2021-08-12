@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./src/css/base.css" />
+  </head>
+  <body>
+    <h1>todos</h1>
+    <div class="todoWrapper">
+      <div class="inputWrapper">
+        <div class="arrow">❯</div>
+        <input type="text" id="input" placeholder="What needs to be done?" />
+      </div>
+      <ul class="todoList"></ul>
+
+      <div class="todoInfo">
+        <p class="itemNumber"></p>
+        <div class="btnInfoWrapper">
+          <button class="allBtn button">All</button>
+          <button class="activeBtn button">Active</button>
+          <button class="compleatedBtn button">Completed</button>
+        </div>
+        <button class="clearCompletedBtn">Clear completed</button>
+      </div>
+    </div>
+    <div class="underLines">
+      <div class="firstLine"></div>
+      <div class="secondLine"></div>
+    </div>
+
+    <script type="text/javascript" src="dist/bundle.js"></script>
+  </body>
+</html>
