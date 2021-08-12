@@ -1,3 +1,3 @@
 import TodoInfo from "./TodoInfo.js";
 
-const todoList = TodoInfo()
+const todoList = new TodoInfo()
