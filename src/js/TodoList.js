@@ -1,123 +1,198 @@
-import render from "./render.js";
-
 class TodoList {
-  constructor(todoList, setTodoList, activeFilter) {
-    this.todoInput = document.querySelector("input");
-    this.inputArrow = document.querySelector(".arrow");
+	constructor(globalState) {
+		this.todoInput = document.querySelector('input')
+		this.inputArrow = document.querySelector('.arrow')
+		this.list = document.querySelector('ul')
 
-    this.render = render.bind(this);
+		this.globalStateContainer = globalState
 
-    this.setTodoList = (newTodoList) => {
-      todoList = newTodoList;
+		this.todoInput.addEventListener('keydown', (keyPressed) => {
+			const itemValue = this.todoInput.value.trim()
+			if (!itemValue) {
+				this.todoInput.value = ''
+				return
+			}
+			if (keyPressed.key === 'Enter') {
+				this.addTodoItem(itemValue)
+				this.todoInput.value = ''
+			}
+		})
 
-      this.render(todoList, activeFilter);
-      this.changeInputArrowColor();
-      this.updateInputArrow();
-      setTodoList(todoList)
-    };
+		this.inputArrow.addEventListener('click', () => {
+			this.changeAllItemsStatus(
+				this.checkAllItems(this.globalStateContainer.todoItemList),
+			)
+		})
+	}
 
-    this.todoInput.addEventListener("keydown", (keyPressed) => {
-      const itemValue = this.todoInput.value.trim();
-      if (!itemValue) {
-        this.todoInput.value = "";
-        return;
-      }
-      if (keyPressed.key === "Enter") {
-        this.addTodoItem(itemValue);
-        this.todoInput.value = "";
-      }
-    });
+	setTodoList(newTodoItemList) {
+		this.globalStateContainer.setTodoList(newTodoItemList)
+	}
 
-    this.addTodoItem = function (itemValue) {
-      this.setTodoList([
-        ...todoList,
-        {
-          value: itemValue,
-          id: Date.now(),
-          done: false,
-        },
-      ]);
+	addTodoItem(itemValue) {
+		this.setTodoList([
+			...this.globalStateContainer.todoItemList,
+			{
+				value: itemValue,
+				id: Date.now(),
+				done: false,
+			},
+		])
+	}
 
-      console.log(todoList);
-    };
+	updateInputArrow() {
+		this.inputArrow.classList[
+			this.globalStateContainer.todoItemList.length ? 'add' : 'remove'
+		]('arrowVisible')
+	}
 
-    this.deleteTodoItem = function (todoId) {
-      this.setTodoList(todoList.filter((elem) => elem.id !== +todoId));
-    };
+	checkAllItems(arr) {
+		const isCheckedAllItems = arr.every((item) => item.done === true)
+		return isCheckedAllItems
+	}
 
-    this.changeItemStatus = function (id, isChecked) {
-      this.setTodoList(
-        todoList.map((item) =>
-          id === item.id ? { ...item, done: isChecked } : item
-        )
-      );
-    };
+	changeAllItemsStatus(isCheckedAllItems) {
+		this.setTodoList(
+			this.globalStateContainer.todoItemList.map((item) =>
+				isCheckedAllItems ? { ...item, done: false } : { ...item, done: true },
+			),
+		)
+	}
 
-    this.checkAllItems = function (arr) {
-      const isCheckedAllItems = arr.every((item) => item.done === true);
-      return isCheckedAllItems;
-    };
+	changeInputArrowColor() {
+		this.inputArrow.classList[
+			this.checkAllItems(this.globalStateContainer.todoItemList)
+				? 'add'
+				: 'remove'
+		]('arrowDark')
+	}
 
-    this.inputArrow.addEventListener("click", () => {
-      this.changeAllItemsStatus(this.checkAllItems(todoList));
-    });
+	render() {
+		this.list.innerText = ''
 
-    this.changeAllItemsStatus = function (isCheckedAllItems) {
-      this.setTodoList(
-        todoList.map((item) =>
-          isCheckedAllItems ? { ...item, done: false } : { ...item, done: true }
-        )
-      );
-    };
+		const todoListToRender = this.globalStateContainer.todoItemList.filter(
+			(todoItem) => {
+				const filterMap = {
+					active: !todoItem.done ? todoItem : null,
+					completed: todoItem.done ? todoItem : null,
+					all: todoItem,
+				}
+				return filterMap[this.globalStateContainer.activeFilter.filter]
+			},
+		)
 
-    this.changeInputArrowColor = function () {
-      this.inputArrow.classList[
-        this.checkAllItems(todoList) ? "add" : "remove"
-      ]("arrowDark");
-    };
+		todoListToRender.forEach((item) => {
+			const li = document.createElement('li')
+			const delBtn = document.createElement('div')
+			const label = document.createElement('label')
+			const checkInput = document.createElement('input')
+			const checkmark = document.createElement('span')
+			const itemText = document.createElement('p')
+			const itemInputWrapper = document.createElement('div')
+			const itemInput = document.createElement('input')
 
-    this.updateInputArrow = function () {
-      this.inputArrow.classList[todoList.length ? "add" : "remove"](
-        "arrowVisible"
-      );
-    };
+			itemInputWrapper.classList.add('itemInputWrapper')
+			itemInput.classList.add('itemInput')
+			itemText.classList.add('itemText')
+			checkInput.setAttribute('type', 'checkBox')
+			label.classList.add('container')
+			checkmark.classList.add('checkmark')
+			delBtn.classList.add('delBtn')
+			li.dataset.todoId = item.id
 
-    this.makeTodoEditHandler = function (input, label, delBtn) {
-      const changeItemValue = () => {
-        const itemValue = input.value.trim();
-        const parentId = +input.parentElement.parentElement.dataset.todoId;
-        this.setTodoList(
-          todoList.map((item) =>
-            parentId === item.id ? { ...item, value: itemValue } : item
-          )
-        );
-      };
+			this.editCurrentTodoItem = this.makeTodoEditHandler(
+				itemInput,
+				label,
+				delBtn,
+			)
 
-      let lastClick = 0;
-      return () => {
-        input.addEventListener("click", (e) => {
-          e.stopPropagation();
-        });
+			li.addEventListener('click', this.editCurrentTodoItem)
 
-        input.addEventListener("blur", changeItemValue);
+			checkInput.addEventListener('change', (e) => {
+				const id = +e.target.parentElement.parentElement.dataset.todoId
+				const isChecked = e.target.checked
+				this.changeItemStatus(id, isChecked)
+			})
 
-        input.addEventListener("keydown", (keyPressed) => {
-          if (keyPressed.key === "Enter") {
-            changeItemValue();
-          }
-        });
+			if (item.done) {
+				checkInput.setAttribute('checked', 'checked')
+			}
 
-        const d = Date.now();
-        const isDblClick = d - lastClick < 400 ? true : false;
+			itemText.classList.add([item.done ? 'notActive' : 'active'])
 
-        label.classList[isDblClick ? "add" : "remove"]("containerHide");
-        delBtn.classList[isDblClick ? "add" : "remove"]("delBtnHide");
-        input.classList[isDblClick ? "add" : "remove"]("itemInputVisible");
+			delBtn.classList.add('delBtn')
+			delBtn.addEventListener(
+				'click',
+				({
+					target: {
+						parentElement: {
+							dataset: { todoId },
+						},
+					},
+				}) => this.deleteTodoItem(todoId),
+			)
 
-        input.focus();
-        lastClick = d;
-      };
-    };
-  }
+			itemInputWrapper.append(itemInput)
+			itemText.textContent = item.value
+			itemInput.value = item.value
+
+			label.append(checkInput, checkmark)
+			li.append(label, itemText, itemInputWrapper, delBtn)
+			this.list.append(li)
+		})
+	}
+
+	deleteTodoItem(todoId) {
+		this.globalStateContainer.setTodoList(
+			this.globalStateContainer.todoItemList.filter(
+				(elem) => elem.id !== +todoId,
+			),
+		)
+	}
+
+	changeItemStatus(id, isChecked) {
+		this.globalStateContainer.setTodoList(
+			this.globalStateContainer.todoItemList.map((item) =>
+				id === item.id ? { ...item, done: isChecked } : item,
+			),
+		)
+	}
+
+	makeTodoEditHandler = function (input, label, delBtn) {
+		const changeItemValue = () => {
+			const itemValue = input.value.trim()
+			const parentId = +input.parentElement.parentElement.dataset.todoId
+			this.setTodoList(
+				this.globalStateContainer.todoItemList.map((item) =>
+					parentId === item.id ? { ...item, value: itemValue } : item,
+				),
+			)
+		}
+
+		let lastClick = 0
+		return () => {
+			input.addEventListener('click', (e) => {
+				e.stopPropagation()
+			})
+
+			input.addEventListener('blur', () => changeItemValue())
+
+			input.addEventListener('keydown', (keyPressed) => {
+				if (keyPressed.key === 'Enter') {
+					changeItemValue()
+				}
+			})
+
+			const d = Date.now()
+			const isDblClick = d - lastClick < 400 ? true : false
+
+			label.classList[isDblClick ? 'add' : 'remove']('containerHide')
+			delBtn.classList[isDblClick ? 'add' : 'remove']('delBtnHide')
+			input.classList[isDblClick ? 'add' : 'remove']('itemInputVisible')
+
+			input.focus()
+			lastClick = d
+		}
+	}
 }
-export default TodoList;
+export default TodoList
