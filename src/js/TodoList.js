@@ -1,10 +1,13 @@
+import EventEmitter from './EventEmitter.js'
+import TodoListContainer from './TodoListContainer.js'
 class TodoList {
-	constructor(globalState) {
+	constructor() {
 		this.todoInput = document.querySelector('input')
 		this.inputArrow = document.querySelector('.arrow')
 		this.list = document.querySelector('ul')
 
-		this.globalStateContainer = globalState
+		this.eventEmitter = EventEmitter.getInstance()
+		this.globalStateContainer = TodoListContainer.getInstance()
 
 		this.todoInput.addEventListener('keydown', (keyPressed) => {
 			const itemValue = this.todoInput.value.trim()
@@ -17,20 +20,25 @@ class TodoList {
 				this.todoInput.value = ''
 			}
 		})
+		console.log('eventEmitter :', this.eventEmitter)
+		console.log('state :', this.globalStateContainer.getState())
 
 		this.inputArrow.addEventListener('click', () => {
 			this.changeAllItemsStatus(
 				this.checkAllItems(this.globalStateContainer.todoItemList),
 			)
 		})
+		this.eventEmitter.subscribe('todoListRender', this.todoListRender)
 	}
 
-	setTodoList(newTodoItemList) {
-		this.globalStateContainer.setTodoList(newTodoItemList)
+	todoListRender = () => {
+		this.render()
+		this.updateInputArrow()
+		this.changeInputArrowColor()
 	}
 
 	addTodoItem(itemValue) {
-		this.setTodoList([
+		this.eventEmitter.emit('setTodoList', [
 			...this.globalStateContainer.todoItemList,
 			{
 				value: itemValue,
@@ -40,7 +48,7 @@ class TodoList {
 		])
 	}
 
-	updateInputArrow() {
+	updateInputArrow = () => {
 		this.inputArrow.classList[
 			this.globalStateContainer.todoItemList.length ? 'add' : 'remove'
 		]('arrowVisible')
@@ -52,14 +60,15 @@ class TodoList {
 	}
 
 	changeAllItemsStatus(isCheckedAllItems) {
-		this.setTodoList(
+		this.eventEmitter.emit(
+			'setTodoList',
 			this.globalStateContainer.todoItemList.map((item) =>
 				isCheckedAllItems ? { ...item, done: false } : { ...item, done: true },
 			),
 		)
 	}
 
-	changeInputArrowColor() {
+	changeInputArrowColor = () => {
 		this.inputArrow.classList[
 			this.checkAllItems(this.globalStateContainer.todoItemList)
 				? 'add'
@@ -67,9 +76,8 @@ class TodoList {
 		]('arrowDark')
 	}
 
-	render() {
+	render = () => {
 		this.list.innerText = ''
-
 		const todoListToRender = this.globalStateContainer.todoItemList.filter(
 			(todoItem) => {
 				const filterMap = {
@@ -143,7 +151,8 @@ class TodoList {
 	}
 
 	deleteTodoItem(todoId) {
-		this.globalStateContainer.setTodoList(
+		this.eventEmitter.emit(
+			'setTodoList',
 			this.globalStateContainer.todoItemList.filter(
 				(elem) => elem.id !== +todoId,
 			),
@@ -151,7 +160,8 @@ class TodoList {
 	}
 
 	changeItemStatus(id, isChecked) {
-		this.globalStateContainer.setTodoList(
+		this.eventEmitter.emit(
+			'setTodoList',
 			this.globalStateContainer.todoItemList.map((item) =>
 				id === item.id ? { ...item, done: isChecked } : item,
 			),
@@ -162,7 +172,8 @@ class TodoList {
 		const changeItemValue = () => {
 			const itemValue = input.value.trim()
 			const parentId = +input.parentElement.parentElement.dataset.todoId
-			this.setTodoList(
+			this.eventEmitter.emit(
+				'setTodoList',
 				this.globalStateContainer.todoItemList.map((item) =>
 					parentId === item.id ? { ...item, value: itemValue } : item,
 				),

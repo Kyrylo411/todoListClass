@@ -1,35 +1,40 @@
-import TodoInfo from './TodoInfo.js'
-import TodoList from './TodoList.js'
+import EventEmitter from './EventEmitter.js'
 
 class TodoListContainer {
+	static instance
+	static getInstance() {
+		if (!TodoListContainer.instance) {
+			TodoListContainer.instance = new TodoListContainer()
+		}
+		return TodoListContainer.instance
+	}
 	constructor() {
 		this.todoItemList = []
 		this.activeFilter = {
 			filter: 'all',
 		}
 
-		this.todoList = new TodoList(this)
-		this.todoInfo = new TodoInfo(this)
+		this.eventEmitter = EventEmitter.getInstance()
+
+		this.eventEmitter.subscribe('setActiveFilter', this.setActiveFilter)
+		this.eventEmitter.subscribe('setTodoList', this.setTodoList)
 	}
 
-	setTodoList(newTodoItemList) {
-		this.todoItemList = newTodoItemList
-		this.render()
+	getState() {
+		return (this.globalState = {
+			todoItemList: this.todoItemList,
+			activeFilter: this.activeFilter,
+		})
 	}
 
-	setActiveFilter(newFilter) {
+	setActiveFilter = (newFilter) => {
 		this.activeFilter.filter = newFilter
-		this.render()
+		this.eventEmitter.emit('todoListRender', this.getState().todoItemList)
 	}
 
-	render() {
-		this.todoList.render()
-		this.todoList.changeInputArrowColor()
-		this.todoList.updateInputArrow()
-
-		this.todoInfo.selectActiveInfoButton()
-		this.todoInfo.updateClearCompletedBtn()
-		this.todoInfo.updateTodoInfo()
+	setTodoList = (newTodoItemList) => {
+		this.todoItemList = newTodoItemList
+		this.eventEmitter.emit('todoListRender', this.getState().todoItemList)
 	}
 }
 export default TodoListContainer

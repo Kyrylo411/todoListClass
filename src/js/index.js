@@ -1,3 +1,5 @@
-import TodoListContainer from './TodoListContainer.js'
+import TodoList from './TodoList.js'
+import TodoInfo from './TodoInfo.js'
 
-const todolist = new TodoListContainer()
+const todoList = new TodoList()
+const todoInfo = new TodoInfo()
