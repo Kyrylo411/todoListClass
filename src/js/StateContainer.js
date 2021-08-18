@@ -3,10 +3,10 @@ import EventEmitter from './EventEmitter.js'
 class StateContainer {
 	static instance
 	static getInstance() {
-		if (!TodoListContainer.instance) {
-			TodoListContainer.instance = new TodoListContainer()
+		if (!StateContainer.instance) {
+			StateContainer.instance = new StateContainer()
 		}
-		return TodoListContainer.instance
+		return StateContainer.instance
 	}
 	constructor() {
 		this.todoItemList = []
