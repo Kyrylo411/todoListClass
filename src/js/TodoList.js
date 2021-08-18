@@ -23,7 +23,7 @@ class TodoList {
 
 		this.inputArrow.addEventListener('click', () => {
 			this.changeAllItemsStatus(
-				this.checkAllItems(this.globalStateContainer.todoItemList),
+				this.checkAllItems(this.globalStateContainer.getState().todoItemList),
 			)
 		})
 		this.eventEmitter.subscribe('todoListRender', this.todoListRender)
@@ -37,7 +37,7 @@ class TodoList {
 
 	addTodoItem(itemValue) {
 		this.eventEmitter.emit('setTodoList', [
-			...this.globalStateContainer.todoItemList,
+			...this.globalStateContainer.getState().todoItemList,
 			{
 				value: itemValue,
 				id: Date.now(),
@@ -48,7 +48,9 @@ class TodoList {
 
 	updateInputArrow = () => {
 		this.inputArrow.classList[
-			this.globalStateContainer.todoItemList.length ? 'add' : 'remove'
+			this.globalStateContainer.getState().todoItemList.length
+				? 'add'
+				: 'remove'
 		]('arrowVisible')
 	}
 
@@ -60,15 +62,19 @@ class TodoList {
 	changeAllItemsStatus(isCheckedAllItems) {
 		this.eventEmitter.emit(
 			'setTodoList',
-			this.globalStateContainer.todoItemList.map((item) =>
-				isCheckedAllItems ? { ...item, done: false } : { ...item, done: true },
-			),
+			this.globalStateContainer
+				.getState()
+				.todoItemList.map((item) =>
+					isCheckedAllItems
+						? { ...item, done: false }
+						: { ...item, done: true },
+				),
 		)
 	}
 
 	changeInputArrowColor = () => {
 		this.inputArrow.classList[
-			this.checkAllItems(this.globalStateContainer.todoItemList)
+			this.checkAllItems(this.globalStateContainer.getState().todoItemList)
 				? 'add'
 				: 'remove'
 		]('arrowDark')
@@ -76,16 +82,18 @@ class TodoList {
 
 	render = () => {
 		this.list.innerText = ''
-		const todoListToRender = this.globalStateContainer.todoItemList.filter(
-			(todoItem) => {
+		const todoListToRender = this.globalStateContainer
+			.getState()
+			.todoItemList.filter((todoItem) => {
 				const filterMap = {
 					active: !todoItem.done ? todoItem : null,
 					completed: todoItem.done ? todoItem : null,
 					all: todoItem,
 				}
-				return filterMap[this.globalStateContainer.activeFilter.filter]
-			},
-		)
+				return filterMap[
+					this.globalStateContainer.getState().activeFilter.filter
+				]
+			})
 
 		todoListToRender.forEach((item) => {
 			const li = document.createElement('li')
@@ -151,18 +159,20 @@ class TodoList {
 	deleteTodoItem(todoId) {
 		this.eventEmitter.emit(
 			'setTodoList',
-			this.globalStateContainer.todoItemList.filter(
-				(elem) => elem.id !== +todoId,
-			),
+			this.globalStateContainer
+				.getState()
+				.todoItemList.filter((elem) => elem.id !== +todoId),
 		)
 	}
 
 	changeItemStatus(id, isChecked) {
 		this.eventEmitter.emit(
 			'setTodoList',
-			this.globalStateContainer.todoItemList.map((item) =>
-				id === item.id ? { ...item, done: isChecked } : item,
-			),
+			this.globalStateContainer
+				.getState()
+				.todoItemList.map((item) =>
+					id === item.id ? { ...item, done: isChecked } : item,
+				),
 		)
 	}
 

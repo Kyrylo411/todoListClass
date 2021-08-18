@@ -21,20 +21,20 @@ class StateContainer {
 	}
 
 	getState() {
-		return (this.globalState = {
+		return {
 			todoItemList: this.todoItemList,
 			activeFilter: this.activeFilter,
-		})
+		}
 	}
 
 	setActiveFilter = (newActiveFilter) => {
 		this.activeFilter.filter = newActiveFilter
-		this.eventEmitter.emit('todoListRender', this.getState().todoItemList)
+		this.eventEmitter.emit('todoListRender')
 	}
 
 	setTodoList = (newTodoItemList) => {
 		this.todoItemList = newTodoItemList
-		this.eventEmitter.emit('todoListRender', this.getState().todoItemList)
+		this.eventEmitter.emit('todoListRender')
 	}
 }
 export default StateContainer
