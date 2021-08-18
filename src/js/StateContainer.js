@@ -1,6 +1,6 @@
 import EventEmitter from './EventEmitter.js'
 
-class TodoListContainer {
+class StateContainer {
 	static instance
 	static getInstance() {
 		if (!TodoListContainer.instance) {
@@ -27,8 +27,8 @@ class TodoListContainer {
 		})
 	}
 
-	setActiveFilter = (newFilter) => {
-		this.activeFilter.filter = newFilter
+	setActiveFilter = (newActiveFilter) => {
+		this.activeFilter.filter = newActiveFilter
 		this.eventEmitter.emit('todoListRender', this.getState().todoItemList)
 	}
 
@@ -37,4 +37,4 @@ class TodoListContainer {
 		this.eventEmitter.emit('todoListRender', this.getState().todoItemList)
 	}
 }
-export default TodoListContainer
+export default StateContainer

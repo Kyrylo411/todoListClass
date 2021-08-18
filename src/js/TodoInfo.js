@@ -1,5 +1,5 @@
 import EventEmitter from './EventEmitter.js'
-import TodoListContainer from './TodoListContainer.js'
+import StateContainer from './StateContainer.js'
 
 class TodoInfo {
 	constructor() {
@@ -32,10 +32,7 @@ class TodoInfo {
 		]
 
 		this.eventEmitter = EventEmitter.getInstance()
-		this.globalStateContainer = TodoListContainer.getInstance()
-
-		console.log(this.eventEmitter)
-		console.log(this.globalStateContainer.getState().activeFilter)
+		this.globalStateContainer = StateContainer.getInstance()
 
 		this.allBtn.addEventListener('click', (e) => {
 			this.changeActiveFilter(e)

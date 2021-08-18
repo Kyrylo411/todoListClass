@@ -1,5 +1,5 @@
 import EventEmitter from './EventEmitter.js'
-import TodoListContainer from './TodoListContainer.js'
+import StateContainer from './StateContainer.js'
 class TodoList {
 	constructor() {
 		this.todoInput = document.querySelector('input')
@@ -7,7 +7,7 @@ class TodoList {
 		this.list = document.querySelector('ul')
 
 		this.eventEmitter = EventEmitter.getInstance()
-		this.globalStateContainer = TodoListContainer.getInstance()
+		this.globalStateContainer = StateContainer.getInstance()
 
 		this.todoInput.addEventListener('keydown', (keyPressed) => {
 			const itemValue = this.todoInput.value.trim()
@@ -20,8 +20,6 @@ class TodoList {
 				this.todoInput.value = ''
 			}
 		})
-		console.log('eventEmitter :', this.eventEmitter)
-		console.log('state :', this.globalStateContainer.getState())
 
 		this.inputArrow.addEventListener('click', () => {
 			this.changeAllItemsStatus(
